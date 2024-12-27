@@ -17,8 +17,11 @@ for line in lines:
     # Preserve original indentation
     indent = len(line) - len(line.lstrip())
     indentation = line[:indent]
-    stripped_line = line[indent:].strip()
+    stripped_line = line[indent:]
     
+    if not stripped_line.strip():
+        result.append(line + '\n')
+        continue
     # Check if line is a bullet point after removing indentation
     if stripped_line.startswith(('*', '-', '·')):
         marker = stripped_line[0]  # Get the bullet marker (*, -, or ·)
@@ -27,13 +30,14 @@ for line in lines:
         counter += 1
     else:
         # Process regular text with spaCy
-        doc = nlp(stripped_line)
+        doc = nlp(line)
         for sentence in doc.sents:
-            result.append(f"{indentation}{{{counter}}} {sentence.text}")
+            result.append(f"{{{counter}}} {sentence.text_with_ws}")
             counter += 1
+    result.append('\n')
 
 # Join with newlines to preserve formatting
-result = '\n'.join(result)
+result = ''.join(result)
 
 tabs = st.tabs(["Easy to read", "Easy to copy-paste"])
 
